@@ -6,3 +6,4 @@ upstream/
 Kext/MSIEC/*.o
 Kext/MSIEC/MSIEC.kext/
 Kext/MSIEC/MSIEC
+dist/
