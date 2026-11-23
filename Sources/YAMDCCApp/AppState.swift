@@ -446,9 +446,9 @@ final class AppState: ObservableObject {
         guard let controller else { return }
         do {
             try controller.setPerfMode(index: index)
-            updateSettings { $0.perfMode = index }
-            // Keep profiles in sync so the main window's per-profile picker
-            // follows a menu bar switch instead of showing a stale value.
+            // Mirror the choice into the profiles so the main window's picker
+            // follows. The global default (额外设置 → 默认性能模式) is a separate
+            // user setting and must not be rewritten by a quick switch.
             setProfilePerfModeUnified(index)
             monitor?.pollNow()
         } catch {
