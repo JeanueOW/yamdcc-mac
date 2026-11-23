@@ -6,7 +6,6 @@ import YAMDCCKit
 
 struct ContentView: View {
     @EnvironmentObject private var state: AppState
-    @Environment(\.openWindow) private var openWindow
 
     enum Tab: String, CaseIterable, Identifiable {
         case fanControl, extras, info
@@ -53,6 +52,7 @@ struct ContentView: View {
             statusBar
         }
         .frame(minWidth: 680, minHeight: 600)
+        .background(WindowAccessor { MainWindowController.shared.register(window: $0) })
         .navigationTitle("YAMDCC 配置编辑器")
         .onAppear { installStatusItem() }
         .alert("出错了", isPresented: Binding(
@@ -113,6 +113,5 @@ struct ContentView: View {
 
     private func installStatusItem() {
         StatusItemController.shared.attach(state: state)
-        StatusItemController.shared.openMainWindow = { openWindow(id: "main") }
     }
 }

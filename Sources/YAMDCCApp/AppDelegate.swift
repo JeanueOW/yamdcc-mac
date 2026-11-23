@@ -11,11 +11,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NotificationCenter.default.addObserver(self, selector: #selector(refreshPolicy),
                                                    name: name, object: nil)
         }
-        refreshPolicy()
+
+        // SwiftUI creates its WindowGroup window shortly *after* this callback.
+        // Applying the accessory policy right away races with that, and when the
+        // app is started as a login item the window may be created much later
+        // (or not at all), which used to leave the app windowless and unable to
+        // reopen its UI. Only downgrade after SwiftUI had a chance to show it.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            AppDelegate.applyPolicy()
+        }
     }
 
     @objc private func refreshPolicy() {
         DispatchQueue.main.async { AppDelegate.applyPolicy() }
+    }
+
+    /// Dock icon / reopen: always bring the main window back if none is visible.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !flag {
+            MainWindowController.shared.show()
+        }
+        return true
     }
 
     static func applyPolicy() {

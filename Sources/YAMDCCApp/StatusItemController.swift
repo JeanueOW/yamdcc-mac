@@ -13,13 +13,10 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     private weak var state: AppState?
     private var cancellables: Set<AnyCancellable> = []
 
-
-    /// Set by ContentView so the menu can reopen the SwiftUI window after it was closed.
-    var openMainWindow: (() -> Void)?
-
     func attach(state: AppState) {
         guard statusItem == nil else { return }
         self.state = state
+        MainWindowController.shared.configure(state: state)
 
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         let menu = NSMenu()
@@ -172,12 +169,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     }
 
     @objc private func openWindow() {
-        NSApp.setActivationPolicy(.regular)
-        NSApp.activate(ignoringOtherApps: true)
-        if let window = NSApp.windows.first(where: { $0.canBecomeMain }) {
-            window.makeKeyAndOrderFront(nil)
-        } else {
-            openMainWindow?()
-        }
+        MainWindowController.shared.show()
     }
 }
