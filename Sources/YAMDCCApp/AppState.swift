@@ -450,6 +450,9 @@ final class AppState: ObservableObject {
             // follows. The global default (额外设置 → 默认性能模式) is a separate
             // user setting and must not be rewritten by a quick switch.
             setProfilePerfModeUnified(index)
+            // Persist the profile choice so it survives a restart; otherwise
+            // apply-on-launch would restore the old on-disk mode.
+            autoSaveConfig()
             monitor?.pollNow()
         } catch {
             report(error, prefix: "设置性能模式失败")
@@ -461,6 +464,7 @@ final class AppState: ObservableObject {
         guard let controller else { return }
         let index = defaultPerfModeIndex
         setProfilePerfModeUnified(-1)
+        autoSaveConfig()
         do {
             try controller.setPerfMode(index: index)
             monitor?.pollNow()
