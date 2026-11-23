@@ -447,6 +447,22 @@ final class AppState: ObservableObject {
         do {
             try controller.setPerfMode(index: index)
             updateSettings { $0.perfMode = index }
+            // Keep profiles in sync so the main window's per-profile picker
+            // follows a menu bar switch instead of showing a stale value.
+            setProfilePerfModeUnified(index)
+            monitor?.pollNow()
+        } catch {
+            report(error, prefix: "设置性能模式失败")
+        }
+    }
+
+    /// Reset every profile to "follow default" and apply that default mode.
+    func setPerfModeFollowDefault() {
+        guard let controller else { return }
+        let index = defaultPerfModeIndex
+        setProfilePerfModeUnified(-1)
+        do {
+            try controller.setPerfMode(index: index)
             monitor?.pollNow()
         } catch {
             report(error, prefix: "设置性能模式失败")

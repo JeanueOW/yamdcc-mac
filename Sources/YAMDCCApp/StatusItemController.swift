@@ -108,15 +108,28 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             let currentIndex = currentPerfModeIndex(perfMode, device: device)
             let currentName = perfMode.options.indices.contains(currentIndex)
                 ? perfMode.options[currentIndex].displayName : "—"
+            let profileIndex = state.profilePerfModeIndex
+            let defaultIndex = state.defaultPerfModeIndex
+            let defaultName = perfMode.options.indices.contains(defaultIndex)
+                ? perfMode.options[defaultIndex].displayName : "—"
             let parent = NSMenuItem(title: "性能模式：\(currentName)", action: nil, keyEquivalent: "")
             let submenu = NSMenu()
+
+            let follow = NSMenuItem(title: "默认性能模式（\(defaultName)）",
+                                    action: #selector(selectDefaultPerfMode),
+                                    keyEquivalent: "")
+            follow.target = self
+            follow.state = profileIndex == -1 ? .on : .off
+            submenu.addItem(follow)
+            submenu.addItem(.separator())
+
             for (index, option) in perfMode.options.enumerated() {
                 let item = NSMenuItem(title: option.displayName,
                                       action: #selector(selectPerfMode(_:)),
                                       keyEquivalent: "")
                 item.target = self
                 item.tag = index
-                item.state = index == currentIndex ? .on : .off
+                item.state = index == profileIndex ? .on : .off
                 submenu.addItem(item)
             }
             parent.submenu = submenu
@@ -169,6 +182,10 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
     @objc private func selectPerfMode(_ sender: NSMenuItem) {
         state?.setPerfMode(index: sender.tag)
+    }
+
+    @objc private func selectDefaultPerfMode() {
+        state?.setPerfModeFollowDefault()
     }
 
     @objc private func selectProfile(_ sender: NSMenuItem) {
