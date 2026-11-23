@@ -104,15 +104,15 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         blast.state = (device?.fullBlast ?? false) ? .on : .off
         menu.addItem(blast)
 
-        if let fanMode = state.config?.layout.fanMode {
-            let currentIndex = state.fanModeIndex
-            let currentName = fanMode.options.indices.contains(currentIndex)
-                ? fanMode.options[currentIndex].displayName : "—"
-            let parent = NSMenuItem(title: "风扇模式：\(currentName)", action: nil, keyEquivalent: "")
+        if let perfMode = state.config?.layout.perfMode {
+            let currentIndex = currentPerfModeIndex(perfMode, device: device)
+            let currentName = perfMode.options.indices.contains(currentIndex)
+                ? perfMode.options[currentIndex].displayName : "—"
+            let parent = NSMenuItem(title: "性能模式：\(currentName)", action: nil, keyEquivalent: "")
             let submenu = NSMenu()
-            for (index, option) in fanMode.options.enumerated() {
+            for (index, option) in perfMode.options.enumerated() {
                 let item = NSMenuItem(title: option.displayName,
-                                      action: #selector(selectFanMode(_:)),
+                                      action: #selector(selectPerfMode(_:)),
                                       keyEquivalent: "")
                 item.target = self
                 item.tag = index
@@ -158,8 +158,17 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         state.setFullBlast(!current)
     }
 
-    @objc private func selectFanMode(_ sender: NSMenuItem) {
-        state?.setFanMode(index: sender.tag)
+    /// The live EC value wins when it maps to a configured option; otherwise
+    /// fall back to the config-wide default shown in the editor.
+    private func currentPerfModeIndex(_ layout: EnumLayout, device: DeviceState?) -> Int {
+        if let raw = device?.perfModeValue, let index = layout.index(forValue: raw) {
+            return index
+        }
+        return state?.defaultPerfModeIndex ?? layout.defaultIndex
+    }
+
+    @objc private func selectPerfMode(_ sender: NSMenuItem) {
+        state?.setPerfMode(index: sender.tag)
     }
 
     @objc private func selectProfile(_ sender: NSMenuItem) {
