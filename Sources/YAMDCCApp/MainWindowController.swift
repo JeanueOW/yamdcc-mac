@@ -26,9 +26,24 @@ final class MainWindowController {
     /// Called from ContentView once it is hosted in a window.
     func register(window: NSWindow?) {
         guard let window, window.canBecomeMain, !(window is NSPanel) else { return }
+        // ContentView also runs inside the fallback window; the fallback is
+        // tracked separately, so never let its updates replace the SwiftUI window.
+        guard window !== fallbackWindow else { return }
         registeredWindow = window
+        // Once SwiftUI has a real window, retire the stand-in so the user never
+        // ends up with two main windows side by side.
+        if window.isVisible {
+            dismissFallback(unless: window)
+        }
         // A window may appear after the launch-time policy check (e.g. at login).
         DispatchQueue.main.async { AppDelegate.applyPolicy() }
+    }
+
+    private func dismissFallback(unless window: NSWindow) {
+        guard let fallback = fallbackWindow, fallback !== window,
+              fallback.isVisible || fallback.isMiniaturized else { return }
+        fallback.close()
+        Log.shared.debug("关闭备用窗口：SwiftUI 主窗口已出现")
     }
 
     /// Bring the main window to the front, creating one if necessary.
@@ -45,6 +60,7 @@ final class MainWindowController {
 
         if let window = registeredWindow ?? existingSwiftUIWindow() {
             registeredWindow = window
+            dismissFallback(unless: window)
             window.makeKeyAndOrderFront(nil)
             Log.shared.debug("打开主窗口：复用 SwiftUI 窗口")
             return true

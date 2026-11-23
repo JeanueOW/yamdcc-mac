@@ -26,13 +26,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         DispatchQueue.main.async { AppDelegate.applyPolicy() }
     }
 
-    /// Dock icon / reopen: always bring the main window back if none is visible.
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        if !flag {
-            MainWindowController.shared.show()
-        }
-        return true
-    }
+    // NOTE: Do not implement applicationShouldHandleReopen. SwiftUI's WindowGroup
+    // already creates/restores a window on Dock reopen; showing our window there
+    // as well produced two main windows.
 
     static func applyPolicy() {
         let hasWindow = NSApp.windows.contains { window in
