@@ -97,7 +97,7 @@ struct SettingsView: View {
             }
 
             Section("关于") {
-                LabeledContent("版本", value: "1.0.0")
+                LabeledContent("版本", value: AppVersion.short)
                 LabeledContent("协议", value: "GPL-3.0-or-later")
                 Text("YAMDCC for macOS 是 Sparronator9999/YAMDCC 的 macOS 移植版本，寄存器映射与配置文件格式来自上游项目。")
                     .font(.caption)

@@ -34,7 +34,7 @@ struct YAMDCCApp: App {
                 Button("关于 YAMDCC for macOS") {
                     NSApp.orderFrontStandardAboutPanel(options: [
                         .applicationName: "YAMDCC",
-                        .applicationVersion: "1.0.0",
+                        .applicationVersion: AppVersion.short,
                         .credits: NSAttributedString(string:
                             "MSI 风扇与 EC 控制。基于 Sparronator9999/YAMDCC (GPL-3.0)。"),
                     ])
